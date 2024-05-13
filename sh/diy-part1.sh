@@ -1,7 +1,5 @@
 #!/bin/bash
 
-git clone https://github.com/kenzok8/openwrt-packages.git package/openwrt-packages
-git clone https://github.com/kenzok8/small.git package/small
 # Git稀疏克隆，只克隆指定目录到本地
 function git_sparse_clone() {
   branch="$1" repourl="$2" && shift 2
@@ -38,6 +36,8 @@ git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-zer
 #git_sparse_clone master https://github.com/kiddin9/openwrt-packages shadowsocksr-libev
 #echo 'src-git my_luci https://github.com/rmoyulong/my_luci' >> feeds.conf.default
 
+git clone https://github.com/kenzok8/openwrt-packages.git package/openwrt-packages
+git clone https://github.com/kenzok8/small.git package/small
 git clone --depth=1 https://github.com/esirplayground/luci-app-poweroff package/luci-app-poweroff
 git clone --depth=1 https://github.com/Jason6111/luci-app-netdata package/luci-app-netdata
 git clone --depth=1 https://github.com/destan19/OpenAppFilter package/OpenAppFilter
