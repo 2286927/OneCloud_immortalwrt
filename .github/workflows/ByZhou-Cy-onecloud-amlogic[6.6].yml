@@ -1,4 +1,4 @@
-#========================================================================================================================
+ #========================================================================================================================
 # https://github.com/ophub/amlogic-s9xxx-openwrt
 # Description: Use Releases file to packaging
 # Cron: min (0 - 59) / hour (0 - 23) / day of month (1 - 31) / month (1 - 12) / day of week (0 - 6)(Sunday - Saturday)
@@ -17,7 +17,7 @@ env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
-  CONFIG_FILE: Config/quicker-amlogic.config
+  CONFIG_FILE: Config/onecloud.config
   #DIY_P1_SH: sh/quick.sh
   DIY_P1_SH: sh/immortalwrt.sh
   DIY_P2_SH: sh/diy-part2.sh
