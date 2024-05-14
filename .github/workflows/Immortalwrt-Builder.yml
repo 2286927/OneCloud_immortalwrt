@@ -166,17 +166,30 @@ jobs:
         retain_days: 0
         keep_minimum_runs: 2
 
-    - name: Remove old Releases
-      uses: dev-drprasad/delete-older-releases@master
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-      with:
-        keep_latest: 3
-        delete_tags: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#    - name: Remove old Releases
+#      uses: dev-drprasad/delete-older-releases@master
+#      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+#      with:
+#        keep_latest: 3
+#        delete_tags: true
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Send msg to Wechat
-      env:
-        SENDKEY: ${{ secrets.SENDKEY }}
-        TAG: ${{ steps.tag.outputs.release_tag }}
-      run: curl -d "text=OpenWrt编译结束&desp=https://github.com/${GITHUB_REPOSITORY}/releases/${TAG}" https://sctapi.ftqq.com/${SENDKEY}.send
+#    - name: Send msg to Wechat
+#      env:
+#        SENDKEY: ${{ secrets.SENDKEY }}
+#        TAG: ${{ steps.tag.outputs.release_tag }}
+#      run: curl -d "text=OpenWrt编译结束&desp=https://github.com/${GITHUB_REPOSITORY}/releases/${TAG}" https://sctapi.ftqq.com/${SENDKEY}.send
+
+    - name: Upload OpenWrt Firmware to Release
+      uses: ncipollo/release-action@v1
+      with:
+        name: 玩客云OneCloud ${{ env.PRODUCT_NAME }}${{ env.DATE }}
+        tag: OneCloud${{ env.FILE_NAME }}
+        artifacts: ${{ env.FIRMWARE }}/*
+        allowUpdates: true
+        removeArtifacts: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        body: |
+          * 玩客云OneCloud
+          * Default username: root
