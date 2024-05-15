@@ -1,6 +1,6 @@
 #!/bin/bash
 sudo apt install img2simg
-./AmlImg unpack ./uboot.img burn/
+./Aml/AmlImg unpack ./uboot.img burn/
 gzip -dk openwrt/bin/targets/*/*/*.gz
 
 # 定义变量以增加代码的可读性和可维护性
@@ -69,7 +69,7 @@ sudo losetup -d "$loop" || true
 printf "PARTITION:boot:sparse:boot.simg\nPARTITION:rootfs:sparse:rootfs.simg\n" >> burn/commands.txt
 
 # 打包并计算校验和
-./AmlImg pack "${burnimg_name}" burn/
+./Aml/AmlImg pack "${burnimg_name}" burn/
 sha256sum "${burnimg_name}" > "${burnimg_name}.sha"
 xz -9 --threads=0 --compress "${burnimg_name}"
 rm -rf burn
