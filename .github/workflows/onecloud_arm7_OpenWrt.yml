@@ -3,8 +3,15 @@ name: 将指定的IMAGES转换成直刷包
 on:
   workflow_dispatch:
     inputs:
-      manual:
-        description: '手动触发一次编译'
+      burn_version:
+        description: "选择版本[0-迷你版 1-全版 2-其他]"
+        required: true
+        default: 1
+        type: choice
+        options:
+          - 0
+          - 1
+          - 2       
 
 #权限
 permissions: write-all 
@@ -22,6 +29,7 @@ env:
   OWRT_IP: 192.168.1.110
   OWRT_NAME: OneCloud
   OWRT_FILES: onecloud/files
+  OWRT_TYPE: 转化版
   #USE_CACHEWRTBUILD: true
   TZ: Asia/Shanghai
 
@@ -55,14 +63,15 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        #sudo rm /etc/apt/sources.list.d/microsoft-prod.list
-        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
-        sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.eu.org/init_build_environment.sh)'
-        sudo timedatectl set-timezone "$TZ"
-        git config --global user.email "1052672227@qq.com"
-        git config --global user.name "shiyu1314"
-        sudo mkdir -p /workdir
-        sudo chown $USER:$GROUPS /workdir
+          sudo -E apt-get -qq update
+          sudo -E apt-get -qq install $(cat $GITHUB_WORKSPACE/Ubuntu-2204.txt)
+          sudo -E apt-get -qq autoremove --purge
+          sudo -E apt-get -qq clean
+          sudo timedatectl set-timezone "$TZ"
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+          echo "status=success" >> ${GITHUB_OUTPUT}
+          df -Th  
 
     - name: 克隆源代码
       working-directory: /workdir
@@ -70,76 +79,27 @@ jobs:
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+
+    - name: 检查脚本
+      run: |
+        cd ./sh
+        
+        dos2unix ./*.sh
+        chmod +x ./*.sh        
         
     - name: 打包直刷包
       run: |
-        sudo apt install img2simg
-        ver="v0.3.2"
-        curl -L -o ./AmlImg https://github.com/rmoyulong/AmlImg/releases/download/$ver/AmlImg_${ver}_linux_amd64
-        chmod +x ./AmlImg
-        curl -L -o ./uboot.img https://github.com/rmoyulong/u-boot-onecloud/releases/download/Onecloud_Uboot_23.12.24_18.15.09/eMMC.burn.img
-        mkdir -p openwrt/out 
-        curl -L -o openwrt/out/onecloud.img.gz https://github.com/rmoyulong/OneCloud_OpenWrt/releases/download/OpenWrt_lede_23.12.14_11.28.52/openwrt-20231214_dcae11a46d.img.gz
-        
-        idtype=0
-        if [[ $idtype == 0 ]]; then
-          echo "OWRT_TYPE=[迷你版]" >> $GITHUB_ENV
+        if [[ ${{ inputs.burn_version }} == 2 ]]; then
+          imgpath="https://github.com/rmoyulong/OneCloud_OpenWrt/releases/download/Docker_Latest/immortalwrt-meson-meson8b-thunder-onecloud-ext4-emmc.img.gz"
+          $GITHUB_WORKSPACE/sh/convert.sh $imgpath
         else
-          echo "OWRT_TYPE=[全版]" >> $GITHUB_ENV
+          $GITHUB_WORKSPACE/sh/convert.sh "${{ inputs.burn_version }}"
         fi
-        
-        ./AmlImg unpack ./uboot.img burn/
-        echo "::endgroup::"
-        gunzip  openwrt/out/*.gz
-        diskimg=$(ls  openwrt/out/*.img)
-        loop=$(sudo losetup --find --show --partscan $diskimg)
-        img_ext="openwrt.img"
-        img_mnt="xd"
-        rootfs_mnt="img"
-        boot_img=$1${img_ext}
-        boot_img_mnt=$1${img_mnt}
-        rootfs_img_mnt=$1${rootfs_mnt}
-        echo ${boot_img}
-        echo ${boot_img_mnt}
-        echo ${rootfs_img_mnt}
-        sudo rm -rf ${boot_img}
-        sudo rm -rf ${boot_img_mnt}
-        sudo rm -rf ${rootfs_img_mnt}
-        sudo dd if=/dev/zero of=${boot_img} bs=1M count=2000
-        sudo mkfs.ext4 ${boot_img}
-        sudo mkdir ${boot_img_mnt}
-        sudo mkdir ${rootfs_img_mnt}
-        sudo mount ${boot_img} ${boot_img_mnt}
-        sudo mount ${loop}p2 ${rootfs_img_mnt}
-        cd ${rootfs_img_mnt}
-        sudo cp -r * ../${boot_img_mnt}
-        cd ..
-        sudo sync
-        sudo umount ${boot_img_mnt}
-        sudo umount ${rootfs_img_mnt}
-        sudo img2simg ${loop}p1 burn/boot.simg
-        sudo img2simg openwrt.img burn/rootfs.simg
-        sudo rm -rf *.img
-        sudo losetup -d $loop
-        cat <<EOF >>burn/commands.txt
-        PARTITION:boot:sparse:boot.simg
-        PARTITION:rootfs:sparse:rootfs.simg
-        EOF
-        prefix=$(ls openwrt/out/*.img | sed 's/\.img$//')
-        burnimg=${prefix}.burn.img
-        ./AmlImg pack $burnimg burn/
-        for f in openwrt/out/*.burn.img; do
-        sha256sum "$f" >"${f}.sha"
-        xz -9 --threads=0 --compress "$f"
-        done
-        mv ${burnimg}.xz openwrt/out/openwrt-onecloud_$(date +"%Y-%m-%d_%H_%M")-burn.img.xz
-        sudo rm -rf openwrt/out/*.img
-        sudo rm -rf openwrt/out/*.gz   
 
     - name: 整理文件
       id: organize
       run: |
-        cd openwrt/out
+        cd openwrt/burnout
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -148,7 +108,15 @@ jobs:
         export OWRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d_%H.%M.%S")
         export OWRT_SOURCE=$(echo $REPO_URL | cut -d '/' -f 5-)
         echo "OWRT_SOURCE=$OWRT_SOURCE" >> $GITHUB_ENV
-        echo "OWRT_DATE=$OWRT_DATE" >> $GITHUB_ENV        
+        echo "OWRT_DATE=$OWRT_DATE" >> $GITHUB_ENV
+        
+        if [[ ${{ inputs.burn_version }} == 0 ]]; then
+          echo "OWRT_TYPE=[hub docker迷你]" >> $GITHUB_ENV
+        elif [[ ${{ inputs.burn_version }} == 1 ]]; then
+          echo "OWRT_TYPE=[hub docker正常]" >> $GITHUB_ENV
+        else
+          echo "OWRT_TYPE=[自定义]" >> $GITHUB_ENV
+        fi
   
     - name: 上传直刷固件
       uses: rmoyulong/action-gh-release@master
@@ -156,7 +124,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: OpenWrt_${{ env.OWRT_SOURCE }}_${{ env.OWRT_DATE }}
-        files: openwrt/out/*
+        files: ${{ env.FIRMWARE }}/*
         body: |
           自用玩客云${{ env.OWRT_TYPE }}直刷固件！使用双USB公头线刷机！
           =============基本信息============
@@ -168,7 +136,7 @@ jobs:
     - name: 清理Releases
       uses: rmoyulong/delete-older-releases@master
       with:
-        keep_latest: 10
+        keep_latest: 12
         delete_tags: true
 
     - name: 清理Workflows
