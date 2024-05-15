@@ -24,7 +24,7 @@ env:
   DIY_P1_SH: sh/diy-part1.sh
   DIY_P2_SH: sh/diy-part2.sh
   DIY_P3_SH: sh/remove.sh
-  GEN_BURN_IMG_SH: burn/gen_burn_img.sh
+  GEN_BURN_IMG_SH: Aml/gen_burn_img.sh
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: false
   OWRT_IP: 172.16.8.1
@@ -135,10 +135,11 @@ jobs:
     - name: 生成直刷包
       if: steps.compile.outputs.status == 'success'
       run: |
-        curl -L -o burn/uboot.img https://github.moeyy.xyz/https://github.com/rmoyulong/u-boot-onecloud/releases/download/Onecloud_Uboot_23.12.24_22.17.50/eMMC.burn.img
+        curl -L -o ./Aml/AmlImg https://github.com/rmoyulong/AmlImg/releases/download/$ver/AmlImg_${ver}_linux_amd64
+        curl -L -o ./Aml/uboot.img https://github.moeyy.xyz/https://github.com/rmoyulong/u-boot-onecloud/releases/download/Onecloud_Uboot_23.12.24_22.17.50/eMMC.burn.img
         chmod +x $GEN_BURN_IMG_SH
-        chmod +x burn/AmlImg
-        chmod +x burn/uboot.img
+        chmod +x ./Aml/AmlImg
+        chmod +x ./Aml/uboot.img
         $GITHUB_WORKSPACE/$GEN_BURN_IMG_SH
 
     - name: Check space usage
