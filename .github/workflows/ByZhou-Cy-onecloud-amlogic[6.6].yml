@@ -298,3 +298,17 @@ jobs:
       with:
         retain_days: 0
         keep_minimum_runs: 2
+        
+    - name: Upload OpenWrt Firmware to Release
+      uses: ncipollo/release-action@v1
+      with:
+        name: OneCloud ${{ env.PRODUCT_NAME }}${{ env.DATE }}
+        tag: OneCloud${{ env.TAG_DATE }}
+        artifacts: ${{ env.FIRMWARE }}/*
+        allowUpdates: true
+        removeArtifacts: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        body: |
+          * 玩客云OneCloud
+          * ByZhou-Cy-onecloud直刷包[amlogic6.6]
+          * Default username: root
