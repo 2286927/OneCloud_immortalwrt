@@ -11,7 +11,15 @@ on:
         options:
           - 0
           - 1
-          - 2       
+          - 2
+      free_disk:
+        description: "选择清理服务器[false-不用 true-清理]"
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
 
 #权限
 permissions: write-all 
@@ -30,6 +38,8 @@ env:
   OWRT_NAME: OneCloud
   OWRT_FILES: onecloud/files
   OWRT_TYPE: 转化版
+  OWRT_burn_version: ${{inputs.burn_version}}
+  OWRT_free_disk: ${{inputs.free_disk}}
   #USE_CACHEWRTBUILD: true
   TZ: Asia/Shanghai
 
@@ -42,8 +52,26 @@ jobs:
       actions: write
 
     steps:
-    - name: 检查分支
-      uses: actions/checkout@v3
+        
+    - name: 清理服务器空间(Ubuntu)
+      if: ${{inputs.free_disk}} == 'true'
+      uses: rmoyulong/free-disk-space@main
+      with:
+        # this might remove tools that are actually needed,
+        # if set to "true" but frees about 6 GB
+        tool-cache: true
+
+        # all of these default to true, but feel free to set to
+        # "false" if necessary for your workflow
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: true
+        swap-storage: true
+
+    - name: 项目检查
+      uses: actions/checkout@main        
       
     - name: 检查分配的服务器性能
       run: |
@@ -71,8 +99,13 @@ jobs:
           sudo mkdir -p /workdir
           sudo chown $USER:$GROUPS /workdir
           echo "status=success" >> ${GITHUB_OUTPUT}
-          df -Th  
+          df -Th
 
+    - name: 初始化变量
+      run: |
+        echo "OWRT_burn_version=$OWRT_burn_version" >> $GITHUB_ENV
+        echo "OWRT_free_disk=$OWRT_free_disk" >> $GITHUB_ENV
+        
     - name: 克隆源代码
       working-directory: /workdir
       run: |
@@ -89,17 +122,17 @@ jobs:
         
     - name: 打包直刷包
       run: |
-        if [[ ${{ inputs.burn_version }} == 2 ]]; then
+        if [[ "${{ env.OWRT_burn_version }}"  == "2" ]]; then
           imgpath="https://github.com/rmoyulong/OneCloud_OpenWrt/releases/download/Docker_Latest/immortalwrt-meson-meson8b-thunder-onecloud-ext4-emmc.img.gz"
           $GITHUB_WORKSPACE/sh/convert.sh $imgpath
         else
-          $GITHUB_WORKSPACE/sh/convert.sh "${{ inputs.burn_version }}"
+          $GITHUB_WORKSPACE/sh/convert.sh ${{ env.OWRT_burn_version }}
         fi
 
     - name: 整理文件
       id: organize
       run: |
-        cd openwrt/burnout
+        cd openwrt/upload
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
