@@ -27,7 +27,7 @@ env:
   REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: Config/onecloud.config
-  DIY_P1_SH: DIY/immortalwrt.sh
+  DIY_P1_SH: DIY/diy-part1.sh
   DIY_P2_SH: DIY/diy-part2.sh
   DIY_P3_SH: sh/remove.sh
   GEN_BURN_IMG_SH: gen_burn_img.sh
