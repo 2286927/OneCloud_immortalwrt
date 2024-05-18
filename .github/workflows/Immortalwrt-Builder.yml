@@ -15,23 +15,25 @@ name: Immortalwrt Builder
 permissions: write-all
 # 开启写权限，防止无法上传到release
 
+
 on:
   repository_dispatch:
   workflow_dispatch:
 
 env:
+  #REPO_URL: https://github.com/coolsnowwolf/lede
+  #REPO_BRANCH: master
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: Config/onecloud.config
-  DIY_P1_SH: sh/diy-part1.sh
-  DIY_P2_SH: sh/diy-part2.sh
-  DIY_P3_SH: sh/remove.sh
+  DIY_P1_SH: DIY/immortalwrt.sh
+  DIY_P2_SH: DIY/diy-part2.sh
   GEN_BURN_IMG_SH: gen_burn_img.sh
-  UPLOAD_FIRMWARE: true
-  UPLOAD_RELEASE: true
   OWRT_IP: 172.16.8.1
   OWRT_NAME: OneCloud
+  UPLOAD_FIRMWARE: true
+  UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
 
 jobs:
@@ -61,31 +63,12 @@ jobs:
         sudo docker image prune --all --force
         sudo sed -i 's/azure\.//' /etc/apt/sources.list
         sudo -E apt-get -qq update
-        sudo -E apt-get -qq install $(cat cat $GITHUB_WORKSPACE/Ubuntu-2204.txt)
+        sudo -E apt-get -qq install $(cat dependson)
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
-
-    - name: 初始化变量
-      run: |
-          export OWRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d_%H.%M.%S")
-          export OWRT_SOURCE=$(echo $REPO_URL | cut -d '/' -f 5-)
-          #export OWRT_TYPE="cortex-a53"
-
-          echo "OWRT_URL=$REPO_URL" >> $GITHUB_ENV
-          echo "OWRT_BRANCH=$REPO_BRANCH" >> $GITHUB_ENV
-          echo "OWRT_DATE=$OWRT_DATE" >> $GITHUB_ENV
-          echo "OWRT_SOURCE=$OWRT_SOURCE" >> $GITHUB_ENV
-          echo "OWRT_TYPE=$OWRT_TYPE" >> $GITHUB_ENV
-          echo "OWRT_NAME=$OWRT_NAME" >> $GITHUB_ENV
-          echo "OWRT_IP=$OWRT_IP" >> $GITHUB_ENV
-          echo "DIY_P1_SH=$DIY_P1_SH" >> $GITHUB_ENV
-          echo "DIY_P2_SH=$DIY_P2_SH" >> $GITHUB_ENV
-          echo "DIY_P3_SH=$DIY_P3_SH" >> $GITHUB_ENV         
-          echo "OWRT_CFG=$CONFIG_FILE" >> $GITHUB_ENV
-          echo "OWRT_FILES=$OWRT_FILES" >> $GITHUB_ENV
 
     - name: Clone source code
       working-directory: /workdir
@@ -120,7 +103,7 @@ jobs:
       run: |
         cd openwrt
         make defconfig
-        make download -j16
+        make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
@@ -133,17 +116,19 @@ jobs:
         echo "status=success" >> $GITHUB_OUTPUT
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
-        echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+        echo "FILE_DATE=$(date +"%Y-%m-%d %H%M")" >> $GITHUB_ENV
+        echo "DATE=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
+        echo "TAG_DATE=$(date +"%m%d-%H%M%S")" >> $GITHUB_ENV
 
     - name: 生成直刷包
       if: steps.compile.outputs.status == 'success'
       run: |
         curl -L -o ./AmlImg https://github.com/rmoyulong/AmlImg/releases/download/$ver/AmlImg_${ver}_linux_amd64
-        curl -L -o ./gen_burn_img1.sh https://github.com/xydche/onecloud-openwrt/raw/main/gen_burn_img.sh
         curl -L -o ./uboot.img https://github.com/rmoyulong/u-boot-onecloud/releases/download/Onecloud_Uboot_23.12.24_22.17.50/eMMC.burn.img
-        chmod +x ./gen_burn_img1.sh
-        chmod +x ./AmlImg
-        chmod +x ./uboot.img
+        curl -L -o ./gen_burn_img1.sh https://github.com/xydche/onecloud-openwrt/raw/main/gen_burn_img.sh
+        chmod +x gen_burn_img1.sh
+        chmod +x AmlImg
+        chmod +x uboot.img
         $GITHUB_WORKSPACE/gen_burn_img1.sh
 
     - name: Check space usage
@@ -175,46 +160,27 @@ jobs:
         [ ${UPLOAD_GOFILE} = true && ${{ steps.gofile.outputs.url }} ] && echo "🔗 [GoFile](${{ steps.gofile.outputs.url }})" >> release.txt
         echo "status=success" >> $GITHUB_OUTPUT
 
-    - name: Upload firmware to release
-      uses: softprops/action-gh-release@master
-      if: steps.tag.outputs.status == 'success' && !cancelled()
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.tag.outputs.release_tag }}
-        body_path: release.txt
-        files: ${{ env.FIRMWARE }}/*
-
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@main
       with:
         retain_days: 0
         keep_minimum_runs: 2
 
-#    - name: Remove old Releases
-#      uses: dev-drprasad/delete-older-releases@master
-#      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-#      with:
-#        keep_latest: 3
-#        delete_tags: true
-#      env:
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-#    - name: Send msg to Wechat
-#      env:
-#        SENDKEY: ${{ secrets.SENDKEY }}
-#        TAG: ${{ steps.tag.outputs.release_tag }}
-#      run: curl -d "text=OpenWrt编译结束&desp=https://github.com/${GITHUB_REPOSITORY}/releases/${TAG}" https://sctapi.ftqq.com/${SENDKEY}.send
-
     - name: Upload OpenWrt Firmware to Release
       uses: ncipollo/release-action@v1
       with:
-        name: 玩客云OneCloud ${{ env.PRODUCT_NAME }}${{ env.DATE }}
-        tag: OneCloud${{ env.TAG_DATE }}
+        name: OneCloud-immortalwrt${{ env.PRODUCT_NAME }}${{ env.DATE }}
+        tag: ${{ env.TAG_DATE }}
         artifacts: ${{ env.FIRMWARE }}/*
         allowUpdates: true
         removeArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
+         玩客云固件[amlogic6.6]！
+          =============基本信息============
+          
           * 玩客云OneCloud
+          * ${{env.OWRT_SOURCE}}
+          * ${{env.OWRT_IP}}
+          * ByZhou-Cy-onecloud直刷包[amlogic6.6]
           * Default username: root
