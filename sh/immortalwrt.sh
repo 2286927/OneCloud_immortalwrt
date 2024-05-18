@@ -22,12 +22,6 @@ rm -rf feeds/luci/applications/luci-app-passwall2
 rm -rf feeds/luci/applications/luci-app-turboacc
 #rm -rf feeds/packages/net/shadowsocks-libev
 
-#aria2
-chmod -R 777 $GITHUB_WORKSPACE/$OWRT_FILES/etc/aria2
-chmod -R 777 $GITHUB_WORKSPACE/$OWRT_FILES/mnt/sda1/aria2
-chmod -R 777 $GITHUB_WORKSPACE/$OWRT_FILES/mnt/sda1/aria2/download
-chmod -R 755 $GITHUB_WORKSPACE/$OWRT_FILES/mnt/sda1/share
-
 # Git稀疏克隆，只克隆指定目录到本地
 function git_sparse_clone() {
   branch="$1" repourl="$2" && shift 2
@@ -41,7 +35,8 @@ function git_sparse_clone() {
 echo 'src-git kenzo https://github.com/kenzok8/openwrt-packages' >> feeds.conf.default
 #echo 'src-git small https://github.com/kenzok8/small' >> feeds.conf.default
 ######################################################################################
-echo 'src-git homeproxy https://github.com/immortalwrt/homeproxy' >> feeds.conf.default
+#echo 'src-git homeproxy https://github.com/immortalwrt/homeproxy' >> feeds.conf.default
+#git clone --depth=1 https://github.com/immortalwrt/homeproxy package/homeproxy
 #git_sparse_clone master https://github.com/rmoyulong/AX6-Actions_Lede luci-app-homeproxy
 ######################################################################################
 #git clone --depth=1 -b main https://github.com/fw876/helloworld package/luci-app-ssr-plus
@@ -85,12 +80,10 @@ git clone --depth=1 https://github.com/ximiTech/msd_lite package/msd_lite
 
 #设置armv7 32位的openclash
 mkdir -p files/etc/openclash/core
-mkdir -p files/etc/profile.d
-mkdir -p files/root
 
-CLASH_DEV_URL="https://raw.githubusercontent.com/vernesong/OpenClash/core/dev/dev/clash-linux-armv7.tar.gz"
-CLASH_TUN_URL=$(curl -fsSL https://api.github.com/repos/vernesong/OpenClash/contents/dev/premium\?ref\=core | grep download_url | grep armv7 | awk -F '"' '{print $4}')
-CLASH_META_URL="https://raw.githubusercontent.com/vernesong/OpenClash/core/dev/meta/clash-linux-armv7.tar.gz"
+CLASH_DEV_URL="https://raw.githubusercontent.com/vernesong/OpenClash/core/master/dev/clash-linux-armv7.tar.gz"
+CLASH_TUN_URL=$(curl -fsSL https://api.github.com/repos/vernesong/OpenClash/contents/master/premium\?ref\=core | grep download_url | grep armv7 | awk -F '"' '{print $4}')
+CLASH_META_URL="https://raw.githubusercontent.com/vernesong/OpenClash/core/master/meta/clash-linux-armv7.tar.gz"
 GEOIP_URL="https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat"
 GEOSITE_URL="https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat"
 GEO_MMDB_URL="https://github.com/alecthw/mmdb_china_ip_list/raw/release/lite/Country.mmdb"

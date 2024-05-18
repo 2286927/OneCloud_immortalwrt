@@ -64,6 +64,7 @@ env:
   DIY_P1_SH: ${{inputs.DIY_P1_SH}}
   DIY_P2_SH: ${{inputs.DIY_P2_SH}}
   OWRT_DOCKER: ${{inputs.OWRT_DOCKER}}
+  FEEDS_CONF: feeds.conf.default
   TZ: Asia/Shanghai
   #USE_CACHEWRTBUILD: true
   
@@ -125,7 +126,7 @@ jobs:
           export OWRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d_%H.%M.%S")
           export OWRT_SOURCE=$(echo $OWRT_URL | cut -d '/' -f 5-)
           #export OWRT_TYPE="cortex-a53"
-
+          
           echo "OWRT_SOURCE=$OWRT_SOURCE" >> $GITHUB_ENV
           echo "OWRT_TARGET=$OWRT_TARGET" >> $GITHUB_ENV
           echo "OWRT_DATE=$OWRT_DATE" >> $GITHUB_ENV
@@ -138,13 +139,7 @@ jobs:
           echo "DIY_P2_SH=$DIY_P2_SH" >> $GITHUB_ENV
           echo "OWRT_CFG=$OWRT_CFG" >> $GITHUB_ENV
           echo "OWRT_DOCKER=$OWRT_DOCKER" >> $GITHUB_ENV
-
-      - name: 检查脚本
-        run: |
-          cd ./sh
-
-          dos2unix ./*.sh
-          chmod +x ./*.sh
+          echo "FEEDS_CONF=$FEEDS_CONF" >> $GITHUB_ENV
 
       - name: 克隆源码库
         working-directory: /workdir
@@ -168,21 +163,43 @@ jobs:
           fi
           
           df -hT $PWD
-          git clone -q --single-branch --depth=1 --branch=${REPO_BRANCH} ${REPO_URL} openwrt
-          #git clone $OWRT_URL -b $OWRT_BRANCH openwrt
-          #git clone $OWRT_URL openwrt
-          
+          git clone -q --single-branch --depth=1 --branch=${REPO_BRANCH} ${REPO_URL} openwrt          
           ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-          [ -e $GITHUB_WORKSPACE/Config/$OWRT_CFG ] && echo "DEVICE_NAME=$(grep '^CONFIG_TARGET_.*_.*_DEVICE_.*=y' $GITHUB_WORKSPACE/Config/$OWRT_CFG | sed -r 's/.*DEVICE_(.*)=y/\1/')" >> $GITHUB_ENV
-         
+          
+      - name: 检查脚本
+        run: |
+          cd ./sh
+          
+          dos2unix ./*.sh
+          chmod +x ./*.sh
+
+      - name: 设置订阅源
+        run: |
           cd openwrt
-          if [[ $REPO_URL == *"immortalwrt"* ]]; then
+          
+          if [ ! -f $GITHUB_WORKSPACE/ax6/$FEEDS_CONF ]; then
+            echo "feeds.conf.default文件不存在！"
+          else
+            cp -rf $GITHUB_WORKSPACE/ax6/$FEEDS_CONF ./feeds.conf.default
+          fi
+          
+          if [[ "${{ inputs.OWRT_URL }}" == *"immortalwrt"* ]]; then
             mv $GITHUB_WORKSPACE/lede6.6/target/linux/meson target/linux/meson
             chmod -Rf 755 target/linux/meson
+            echo "拷贝定义的源文件！"
+            ls -l target/linux/meson
+          fi
+          
+          if [ ! -f target/linux/meson/Makefile ]; then
+            echo "Makefile文件不存在！"
+          else
+            echo "Makefile文件存在！"
           fi
           
           $GITHUB_WORKSPACE/sh/$DIY_P1_SH
+          #echo 'src-git kiddin9 https://github.com/kiddin9/openwrt-packages' >> feeds.conf.default
           echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+        
 
       - name: 启动缓存[第二次起生效]
         uses: rmoyulong/cachewrtbuild@main
@@ -196,18 +213,21 @@ jobs:
         run: |
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-          
+
+      - name:  加载自定义配置
+        working-directory: ./openwrt
+        run: |         
           rm -rf ./tmp* ./.config*
-          [ -e $GITHUB_WORKSPACE/Config/$OWRT_CFG ] && mv $GITHUB_WORKSPACE/Config/$OWRT_CFG .config
-          cp -rf $GITHUB_WORKSPACE/ax6/banner package/base-files/files/etc/banner
-          $GITHUB_WORKSPACE/sh/$DIY_P2_SH
           
-          #docker版去掉解除网易音乐限制插件
-          if [[ "${{ inputs.OWRT_TYPE }}" == *"OneCloud-docker"* ]]; then
-            echo -e 'CONFIG_PACKAGE_luci-app-unblockmusic=n\n' >> .config
-            echo -e 'CONFIG_PACKAGE_luci-app-unblockneteasemusic=n\n' >> .config
+          if [ ! -z $GITHUB_WORKSPACE/Config/$OWRT_CFG ]; then
+            echo "config文件不存在！"
+          else
+            cp -rf $GITHUB_WORKSPACE/Config/$OWRT_CFG .config
           fi
           
+          cp -rf $GITHUB_WORKSPACE/ax6/banner package/base-files/files/etc/banner
+          $GITHUB_WORKSPACE/sh/$DIY_P2_SH
+         
           #删除冲突的插件 
           #rm -rf feeds/kenzok8/{base-files,dnsmasq,firewall*,fullconenat,libnftnl,nftables,ppp,opkg,ucl,upx,vsftpd-alt,miniupnpd-iptables,wireless-regdb}
           $GITHUB_WORKSPACE/sh/remove.sh
@@ -219,14 +239,21 @@ jobs:
           chmod -Rf 755 $GITHUB_WORKSPACE/$OWRT_FILES/etc/*.sh
           chmod -Rf 755 $GITHUB_WORKSPACE/$OWRT_FILES/etc/rc.*
           
-          cp -rf $GITHUB_WORKSPACE/$OWRT_FILES/* openwrt/files
+          #aria2
+          chmod -R 777 $GITHUB_WORKSPACE/$OWRT_FILES/etc/aria2
+          chmod -R 777 $GITHUB_WORKSPACE/$OWRT_FILES/mnt/sda1/aria2
+          chmod -R 777 $GITHUB_WORKSPACE/$OWRT_FILES/mnt/sda1/aria2/download
+          chmod -R 755 $GITHUB_WORKSPACE/$OWRT_FILES/mnt/sda1/share
+          
+          cd openwrt
+          mv $GITHUB_WORKSPACE/$OWRT_FILES files
           
           #web控制台去掉443监听补丁
           if [[ "${{ inputs.OWRT_TYPE }}" == *"OneCloud-docker"* ]]; then
-            mv $GITHUB_WORKSPACE/ax6/uhttpd openwrt/files/etc/config
+            mv $GITHUB_WORKSPACE/ax6/uhttpd ./files/etc/config
           fi
           
-          cd openwrt && make defconfig
+          make defconfig
         
       - name: 下载编译环境
         working-directory: ./openwrt
