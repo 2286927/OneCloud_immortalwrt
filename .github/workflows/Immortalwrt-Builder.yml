@@ -71,6 +71,10 @@ jobs:
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
+        
+    - name: 初始化变量
+      run: |
+          echo "OWRT_FILES=$OWRT_FILES" >> $GITHUB_ENV
 
     - name: Clone source code
       working-directory: /workdir
