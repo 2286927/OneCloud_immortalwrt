@@ -111,6 +111,7 @@ jobs:
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_P2_SH
+        chmod +x $DIY_P3_SH
         cd openwrt
         cp -rf $GITHUB_WORKSPACE/ax6/banner package/base-files/files/etc/banner
         $GITHUB_WORKSPACE/$DIY_P2_SH
