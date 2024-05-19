@@ -201,8 +201,8 @@ jobs:
     - name: Upload OpenWrt Firmware to Release
       uses: ncipollo/release-action@v1
       with:
-        name: OneCloud-immortalwrt${{ env.PRODUCT_NAME }}${{ env.DATE }}
-        tag: ${{ env.TAG_DATE }}
+        name: OneCloud-immortalwrt ${{ env.PRODUCT_NAME }}${{ env.DATE }}
+        tag: OneCloud-immortalwrt${{ env.TAG_DATE }}
         artifacts: ${{ env.FIRMWARE }}/*
         allowUpdates: true
         removeArtifacts: true
