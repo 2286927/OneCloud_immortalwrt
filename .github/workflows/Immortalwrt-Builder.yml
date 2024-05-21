@@ -159,6 +159,7 @@ jobs:
     - name: 生成直刷包
       if: steps.compile.outputs.status == 'success'
       run: |
+        cp -rf bin/targets/*/*/*.gz ./outfile
         curl -L -o ./AmlImg https://github.com/rmoyulong/AmlImg/releases/download/$ver/AmlImg_${ver}_linux_amd64
         curl -L -o ./uboot.img https://github.com/rmoyulong/u-boot-onecloud/releases/download/Onecloud_Uboot_23.12.24_22.17.50/eMMC.burn.img
         curl -L -o ./gen_burn_img.sh https://github.com/xydche/onecloud-openwrt/raw/main/gen_burn_img.sh
