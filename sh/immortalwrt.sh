@@ -36,8 +36,8 @@ echo 'src-git kenzo https://github.com/kenzok8/openwrt-packages' >> feeds.conf.d
 #echo 'src-git small https://github.com/kenzok8/small' >> feeds.conf.default
 ######################################################################################
 #echo 'src-git homeproxy https://github.com/immortalwrt/homeproxy' >> feeds.conf.default
-git clone --depth=1 https://github.com/immortalwrt/homeproxy package/homeproxy
-git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-homeproxy
+#git clone --depth=1 https://github.com/immortalwrt/homeproxy package/homeproxy
+#git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-homeproxy
 ######################################################################################
 #git clone --depth=1 -b main https://github.com/fw876/helloworld package/luci-app-ssr-plus
 git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall-packages package/openwrt-passwall
@@ -50,16 +50,18 @@ git_sparse_clone master https://github.com/kiddin9/openwrt-packages dnsforwarder
 git_sparse_clone master https://github.com/rmoyulong/AX6-Actions_Lede pcre
 git_sparse_clone master https://github.com/rmoyulong/AX6-Actions_Lede aria2
 git_sparse_clone main https://github.com/kenzok8/small-package ariang
-git_sparse_clone master https://github.com/rmoyulong/AX6-Actions_Lede zerotier
-git_sparse_clone master https://github.com/kiddin9/openwrt-packages v2dat
+#git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-zerotier
+#git_sparse_clone main https://github.com/kenzok8/small-package luci-app-kodexplorer
+git_sparse_clone master https://github.com/kiddin9/openwrt-packages mosdns
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-mosdns
-git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-zerotier
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-ssr-plus
+git_sparse_clone master https://github.com/kiddin9/openwrt-packages v2dat
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages shadow-tls
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages lua-neturl
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages redsocks2
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages lua-maxminddb
-#git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-kodexplorer
+rm -rf  package/openwrt-passwall/shadowsocks-rust
+git_sparse_clone master https://github.com/kiddin9/openwrt-packages shadowsocks-rust
 #git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-usb-printer
 #git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-turboacc
 #git_sparse_clone master https://github.com/kiddin9/openwrt-packages shadowsocksr-libev

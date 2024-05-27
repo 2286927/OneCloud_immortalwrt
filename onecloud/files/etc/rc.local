@@ -1,10 +1,12 @@
-#!/bin/sh
-
 # Put your custom commands here that should be executed once
 # the system init finished. By default this file does nothing.
 
 mount -o remount rw /
 resize2fs /dev/mmcblk1p2
+mkdir -p /tmp/run/homeproxy
+chmod -R 777 /tmp/run/homeproxy
+chmod -R 777 /etc/init.d/kodexplorer
+chmod -R 777 /etc/init.d/zerotier
 sh  /etc/1.sh
 
 exit 0

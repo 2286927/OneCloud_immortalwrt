@@ -93,6 +93,19 @@ jobs:
       - name: 项目检查
         uses: actions/checkout@main
 
+      - name: 最大化编译空间
+        uses: rmoyulong/maximize-build-space@master
+        with:
+          root-reserve-mb: 2048
+          swap-size-mb: 1024
+          build-mount-path: /workdir
+          overprovision-lvm: 'true'
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+
       - name: 检查分配的服务器性能
         run: |
           echo "警告⚠"
@@ -124,7 +137,7 @@ jobs:
       - name: 初始化变量
         run: |
           export OWRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d_%H.%M.%S")
-          export OWRT_SOURCE=$(echo $OWRT_URL | cut -d '/' -f 5-)
+          export OWRT_SOURCE=$(echo ${{inputs.OWRT_URL}} | cut -d '/' -f 5-)
           #export OWRT_TYPE="cortex-a53"
           
           echo "OWRT_SOURCE=$OWRT_SOURCE" >> $GITHUB_ENV
@@ -231,6 +244,7 @@ jobs:
           dos2unix $GITHUB_WORKSPACE/$OWRT_FILES/etc/rc.*
           chmod -Rf 755 $GITHUB_WORKSPACE/$OWRT_FILES/etc/*.sh
           chmod -Rf 755 $GITHUB_WORKSPACE/$OWRT_FILES/etc/rc.*
+          chmod -Rf 755 $GITHUB_WORKSPACE/$OWRT_FILES/etc/init.d/*
           
           #aria2
           chmod -R 777 $GITHUB_WORKSPACE/$OWRT_FILES/etc/aria2
@@ -328,7 +342,7 @@ jobs:
           
           #信息
           export OWRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d_%H.%M.%S")
-          export OWRT_SOURCE=$(echo $REPO_URL | cut -d '/' -f 5-)
+          export OWRT_SOURCE=$(echo ${{inputs.OWRT_URL}} | cut -d '/' -f 5-)
           echo "OWRT_SOURCE=$OWRT_SOURCE" >> $GITHUB_ENV
           echo "OWRT_DATE=$OWRT_DATE" >> $GITHUB_ENV
 
