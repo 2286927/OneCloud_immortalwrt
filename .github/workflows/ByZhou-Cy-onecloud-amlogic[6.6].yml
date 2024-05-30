@@ -1,11 +1,11 @@
- #========================================================================================================================
+#========================================================================================================================
 # https://github.com/ophub/amlogic-s9xxx-openwrt
 # Description: Use Releases file to packaging
 # Cron: min (0 - 59) / hour (0 - 23) / day of month (1 - 31) / month (1 - 12) / day of week (0 - 6)(Sunday - Saturday)
 #========================================================================================================================
 name: ByZhou-Cy-onecloud直刷包[amlogic6.6]
 
-permissions: write-all
+#permissions: write-all
 # 开启写权限，防止无法上传到release
 
 on:
@@ -54,6 +54,7 @@ jobs:
         dotnet: true
         haskell: true
         large-packages: true
+        docker-images: true
         swap-storage: true
         
     - name: 检查项目
@@ -202,30 +203,31 @@ jobs:
         
     - name: 制作直刷包
       run: |
+          #$GITHUB_WORKSPACE/sh/convert2.sh
           sudo apt install img2simg
           ver="v0.3.2"
           curl -L -o ./AmlImg https://github.com/rmoyulong/AmlImg/releases/download/$ver/AmlImg_${ver}_linux_amd64
           chmod +x ./AmlImg
-          curl -L -o ./uboot.img https://github.com/rmoyulong/u-boot-onecloud/releases/download/Onecloud_Uboot_23.12.24_18.15.09/eMMC.burn.img
+          #curl -L -o ./uboot.img https://github.com/rmoyulong/u-boot-onecloud/releases/download/Onecloud_Uboot_23.12.24_18.15.09/eMMC.burn.img
+          curl -L -o ./uboot.img https://github.com/rmoyulong/u-boot-onecloud/releases/download/Onecloud_Uboot_23.12.24_22.17.50/eMMC.burn.img
           ./AmlImg unpack ./uboot.img burn/
-          echo "::endgroup::"
           
-          gunzip  openwrt/bin/targets/*/*/*.gz
+          gunzip openwrt/bin/targets/*/*/*.gz
           diskimg=$(ls openwrt/bin/targets/*/*/*.img)
           loop=$(sudo losetup --find --show --partscan $diskimg)
           img_ext="openwrt.img"
           img_mnt="xd"
           rootfs_mnt="img"
-          boot_img=$1${img_ext}
-          boot_img_mnt=$1${img_mnt}
-          rootfs_img_mnt=$1${rootfs_mnt}
+          boot_img=${img_ext}
+          boot_img_mnt=${img_mnt}
+          rootfs_img_mnt=${rootfs_mnt}
           echo ${boot_img}
           echo ${boot_img_mnt}
           echo ${rootfs_img_mnt}
           sudo rm -rf ${boot_img}
           sudo rm -rf ${boot_img_mnt}
           sudo rm -rf ${rootfs_img_mnt}
-          sudo dd if=/dev/zero of=${boot_img} bs=1M count=1200
+          sudo dd if=/dev/zero of=${boot_img} bs=1M count=2000
           sudo mkfs.ext4 ${boot_img}
           sudo mkdir ${boot_img_mnt}
           sudo mkdir ${rootfs_img_mnt}
@@ -249,10 +251,11 @@ jobs:
           burnimg=${prefix}.burn.img
           ./AmlImg pack $burnimg burn/
           for f in openwrt/bin/targets/*/*/*.burn.img; do
-            sha256sum "$f" >"${f}.sha"
-            xz --threads=0 --compress "$f"
+          sha256sum "$f" >"${f}.sha"
+          xz -9 --threads=0 --compress "$f"
           done
           sudo rm -rf openwrt/bin/targets/*/*/*.img
+#          sudo rm -rf openwrt/bin/targets/*/*/*.gz
           
     - name: 整理固件
       id: organize
@@ -261,6 +264,7 @@ jobs:
         mkdir outfile
         cp -rf bin/targets/*/*/*.tar ./outfile
         cp -rf bin/targets/*/*/*.xz ./outfile
+        cp -rf bin/targets/*/*/*.gz ./outfile
         cp -rf .config ./outfile/config.txt
         rm -rf bin/targets/*/*/packages
         
