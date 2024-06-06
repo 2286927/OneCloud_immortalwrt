@@ -35,9 +35,8 @@ function git_sparse_clone() {
 echo 'src-git kenzo https://github.com/kenzok8/openwrt-packages' >> feeds.conf.default
 #echo 'src-git small https://github.com/kenzok8/small' >> feeds.conf.default
 ######################################################################################
-#echo 'src-git homeproxy https://github.com/immortalwrt/homeproxy' >> feeds.conf.default
-#git clone --depth=1 https://github.com/immortalwrt/homeproxy package/homeproxy
-#git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-homeproxy
+git clone --depth=1 https://github.com/immortalwrt/homeproxy package/homeproxy
+git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-homeproxy
 ######################################################################################
 #git clone --depth=1 -b main https://github.com/fw876/helloworld package/luci-app-ssr-plus
 git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall-packages package/openwrt-passwall
@@ -47,25 +46,23 @@ git_sparse_clone master https://github.com/vernesong/OpenClash luci-app-openclas
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-bypass
 #######################################################################################
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages dnsforwarder
+#git_sparse_clone master https://github.com/rmoyulong/AX6-Actions_Lede qca
 git_sparse_clone master https://github.com/rmoyulong/AX6-Actions_Lede pcre
-git_sparse_clone master https://github.com/rmoyulong/AX6-Actions_Lede aria2
-git_sparse_clone main https://github.com/kenzok8/small-package ariang
+#git_sparse_clone master https://github.com/rmoyulong/AX6-Actions_Lede aria2
+#git_sparse_clone main https://github.com/kenzok8/small-package ariang
 #git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-zerotier
-#git_sparse_clone main https://github.com/kenzok8/small-package luci-app-kodexplorer
-git_sparse_clone master https://github.com/kiddin9/openwrt-packages mosdns
+git_sparse_clone master https://github.com/kiddin9/openwrt-packages v2dat
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-mosdns
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-ssr-plus
-git_sparse_clone master https://github.com/kiddin9/openwrt-packages v2dat
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages shadow-tls
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages lua-neturl
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages redsocks2
+git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-turboacc
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages lua-maxminddb
-rm -rf  package/openwrt-passwall/shadowsocks-rust
 git_sparse_clone master https://github.com/kiddin9/openwrt-packages shadowsocks-rust
+#git_sparse_clone main https://github.com/kenzok8/small-package luci-app-kodexplorer
 #git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-usb-printer
-#git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-turboacc
 #git_sparse_clone master https://github.com/kiddin9/openwrt-packages shadowsocksr-libev
-#echo 'src-git my_luci https://github.com/rmoyulong/my_luci' >> feeds.conf.default
 
 git clone --depth=1 https://github.com/esirplayground/luci-app-poweroff package/luci-app-poweroff
 git clone --depth=1 https://github.com/Jason6111/luci-app-netdata package/luci-app-netdata
@@ -79,20 +76,3 @@ sudo chmod -Rf 755 package/luci-app-onliner
 # msd_lite
 git clone --depth=1 https://github.com/ximiTech/luci-app-msd_lite package/luci-app-msd_lite
 git clone --depth=1 https://github.com/ximiTech/msd_lite package/msd_lite
-
-#设置armv7 32位的openclash
-mkdir -p files/etc/openclash/core
-
-CLASH_DEV_URL="https://raw.githubusercontent.com/vernesong/OpenClash/core/master/dev/clash-linux-armv7.tar.gz"
-CLASH_TUN_URL=$(curl -fsSL https://api.github.com/repos/vernesong/OpenClash/contents/master/premium\?ref\=core | grep download_url | grep armv7 | awk -F '"' '{print $4}')
-CLASH_META_URL="https://raw.githubusercontent.com/vernesong/OpenClash/core/master/meta/clash-linux-armv7.tar.gz"
-GEOIP_URL="https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat"
-GEOSITE_URL="https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat"
-GEO_MMDB_URL="https://github.com/alecthw/mmdb_china_ip_list/raw/release/lite/Country.mmdb"
-
-wget -qO- $CLASH_DEV_URL | tar xOvz > files/etc/openclash/core/clash
-wget -qO- $CLASH_TUN_URL | gunzip -c > files/etc/openclash/core/clash_tun
-wget -qO- $CLASH_META_URL | tar xOvz > files/etc/openclash/core/clash_meta
-wget -qO- $GEOIP_URL > files/etc/openclash/GeoIP.dat
-wget -qO- $GEOSITE_URL > files/etc/openclash/GeoSite.dat
-wget -qO- $GEO_MMDB_URL > files/etc/openclash/Country.mmdb
