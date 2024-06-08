@@ -153,8 +153,6 @@ jobs:
     - name:  加载自定义配置
       working-directory: ./openwrt
       run: |
-        rm -rf ./tmp* ./.config*
-        [ -e $GITHUB_WORKSPACE/$CONFIG_FILE ] && mv $GITHUB_WORKSPACE/$CONFIG_FILE .config
         cp -rf $GITHUB_WORKSPACE/ax6/banner package/base-files/files/etc/banner
         
         $GITHUB_WORKSPACE/$DIY_P2_SH
@@ -168,11 +166,40 @@ jobs:
         dos2unix $GITHUB_WORKSPACE/$OWRT_FILES/etc/rc.*
         chmod -Rf 755 $GITHUB_WORKSPACE/$OWRT_FILES/etc/*.sh
         chmod -Rf 755 $GITHUB_WORKSPACE/$OWRT_FILES/etc/rc.*
+        chmod -Rf 755 $GITHUB_WORKSPACE/$OWRT_FILES/etc/init.d/*
+          
+        #aria2
+        chmod -R 777 $GITHUB_WORKSPACE/$OWRT_FILES/etc/aria2
+        chmod -R 777 $GITHUB_WORKSPACE/$OWRT_FILES/mnt/sda1/aria2
+        chmod -R 777 $GITHUB_WORKSPACE/$OWRT_FILES/mnt/sda1/aria2/download
+        chmod -R 755 $GITHUB_WORKSPACE/$OWRT_FILES/mnt/sda1/share
+          
+        rm -rf ./tmp* ./.config*
+        [ -e $GITHUB_WORKSPACE/$OWRT_CFG ] && mv $GITHUB_WORKSPACE/$OWRT_CFG .config
         
-        cp -rf $GITHUB_WORKSPACE/$OWRT_FILES/* openwrt/files
-        echo $GITHUB_WORKSPACE/$OWRT_FILES
-        
-        cd openwrt && make defconfig
+        #如果files文件夹不存在，创建文件夹
+          if [ ! -d "./files" ]; then
+            mkdir ./files
+          fi          
+          cp -rf $GITHUB_WORKSPACE/$OWRT_FILES/* ./files
+          
+          ls -l files
+          if [ ! -f files/etc/rc.local ]; then
+            echo "rc.local文件不存在！"
+          else
+            cat files/etc/rc.local
+          fi         
+          
+          #web控制台去掉443监听补丁
+          if [[ "${{ inputs.OWRT_TYPE }}" == *"OneCloud-docker"* ]]; then
+            cp -rf $GITHUB_WORKSPACE/ax6/uhttpd ./files/etc/config
+          else
+            #去掉多余的dhcp文件，让首次启动有dhcp服务
+            rm -rf ./files/etc/config/dhcp
+          fi
+          
+          #openclash 32
+          $GITHUB_WORKSPACE/sh/openclash32.sh
         
     #- name: 设置firewall4的turboacc
       #run: |
@@ -185,6 +212,7 @@ jobs:
     - name: 下载编译环境
       working-directory: ./openwrt
       run: |
+        make defconfig
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
