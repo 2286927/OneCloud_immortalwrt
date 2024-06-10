@@ -227,7 +227,6 @@ jobs:
         echo "FILE_DATE=$(date +"%Y-%m-%d %H%M")" >> $GITHUB_ENV
         echo "DATE=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
         echo "TAG_DATE=$(date +"%m%d-%H%M%S")" >> $GITHUB_ENV
-        cp -rf bin/targets/*/*/*.gz ./outfile
         
     - name: 制作直刷包
       run: |
