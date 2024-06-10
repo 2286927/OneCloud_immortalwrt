@@ -2,8 +2,8 @@ sudo apt install img2simg
           ver="v0.3.2"
           curl -L -o ./AmlImg https://github.com/rmoyulong/AmlImg/releases/download/$ver/AmlImg_${ver}_linux_amd64
           chmod +x ./AmlImg
-          #curl -L -o ./uboot.img https://github.com/rmoyulong/u-boot-onecloud/releases/download/Onecloud_Uboot_23.12.24_18.15.09/eMMC.burn.img
-          curl -L -o ./uboot.img https://github.com/rmoyulong/u-boot-onecloud/releases/download/Onecloud_Uboot_23.12.24_22.17.50/eMMC.burn.img
+          curl -L -o ./uboot.img https://github.com/rmoyulong/u-boot-onecloud/releases/download/Onecloud_Uboot_23.12.24_18.15.09/eMMC.burn.img
+          #curl -L -o ./uboot.img https://github.com/rmoyulong/u-boot-onecloud/releases/download/Onecloud_Uboot_23.12.24_22.17.50/eMMC.burn.img
           ./AmlImg unpack ./uboot.img burn/
           
           gunzip openwrt/bin/targets/*/*/*.gz
@@ -49,4 +49,4 @@ sudo apt install img2simg
           xz -9 --threads=0 --compress "$f"
           done
           sudo rm -rf openwrt/bin/targets/*/*/*.img
-#          sudo rm -rf openwrt/bin/targets/*/*/*.gz
+          #sudo rm -rf openwrt/bin/targets/*/*/*.gz
