@@ -49,4 +49,4 @@ sudo apt install img2simg
           xz -9 --threads=0 --compress "$f"
           done
           sudo rm -rf openwrt/bin/targets/*/*/*.img
-          #sudo rm -rf openwrt/bin/targets/*/*/*.gz
+          sudo rm -rf openwrt/bin/targets/*/*/*.gz
