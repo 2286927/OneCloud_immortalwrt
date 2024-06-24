@@ -161,6 +161,7 @@ jobs:
         $GITHUB_WORKSPACE/sh/remove.sh
                
     - name: 自定义IMAGS格式 - meson8b cortex-a5+vfpv4
+      working-directory: ./openwrt
       run: |
         dos2unix $GITHUB_WORKSPACE/$OWRT_FILES/etc/*.sh
         dos2unix $GITHUB_WORKSPACE/$OWRT_FILES/etc/rc.*
@@ -239,7 +240,7 @@ jobs:
         mkdir outfile
         cp -rf bin/targets/*/*/*.tar ./outfile
         cp -rf bin/targets/*/*/*.xz ./outfile
-        #cp -rf bin/targets/*/*/*.gz ./outfile
+        cp -rf bin/targets/*/*/*.gz ./outfile
         cp -rf .config ./outfile/config.txt
         rm -rf bin/targets/*/*/packages
         
