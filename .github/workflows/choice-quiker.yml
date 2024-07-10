@@ -3,21 +3,29 @@
 # Description: Use Releases file to packaging
 # Cron: min (0 - 59) / hour (0 - 23) / day of month (1 - 31) / month (1 - 12) / day of week (0 - 6)(Sunday - Saturday)
 #========================================================================================================================
-name: 一站式精简onecloud直刷包[amlogic6.1]
+name: 一站式精简onecloud直刷包【选择编译】
 
 on:
-  #对应的是 UTC 时间，需要转换，0 代表北京时间8点，每个月3日/16日12点编译一次
+  #对应的是 UTC 时间，需要转换，0 代表北京时间8点，每个月2日/15日12点编译一次
   #关闭则手动编译
   workflow_dispatch:
-  schedule:
-    - cron: 0 4 3,16 * *
+    inputs:
+      brun_type:
+        type: choice
+        description: 选择需要编译的直刷包类型
+        required: true
+        default: "meson6.6"
+        options: 
+        - amlogic6.1
+        - amlogic6.6
+        - meson6.6
 
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
-  CONFIG_FILE: Config/quicker-amlogic.config
+  CONFIG_FILE: Config/quicker.config
   #DIY_P1_SH: sh/quick.sh
   DIY_P1_SH: sh/immortalwrt.sh
   DIY_P2_SH: sh/lean2.sh
@@ -30,14 +38,14 @@ env:
   OWRT_IP: 192.168.1.110
   OWRT_NAME: OneCloud
   OWRT_FILES: onecloud/files
+  OWRT_brun_type: ${{ github.event.inputs.brun_type }}
   TZ: Asia/Shanghai
 
 jobs:
-  build_burn_onecloud_quick:
+  build_brun_firmware:
     runs-on: ubuntu-latest
-
+        
     steps:
-
     - name: 清理服务器空间(Ubuntu)
       uses: rmoyulong/free-disk-space@main
       with:
@@ -90,7 +98,7 @@ jobs:
           export OWRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d_%H.%M.%S")
           export OWRT_SOURCE=$(echo $REPO_URL | cut -d '/' -f 5-)
           #export OWRT_TYPE="cortex-a53"
-
+          
           echo "OWRT_URL=$REPO_URL" >> $GITHUB_ENV
           echo "OWRT_BRANCH=$REPO_BRANCH" >> $GITHUB_ENV
           echo "OWRT_DATE=$OWRT_DATE" >> $GITHUB_ENV
@@ -100,9 +108,25 @@ jobs:
           echo "OWRT_IP=$OWRT_IP" >> $GITHUB_ENV
           echo "DIY_P1_SH=$DIY_P1_SH" >> $GITHUB_ENV
           echo "DIY_P2_SH=$DIY_P2_SH" >> $GITHUB_ENV
-          echo "DIY_P3_SH=$DIY_P3_SH" >> $GITHUB_ENV         
-          echo "OWRT_CFG=$CONFIG_FILE" >> $GITHUB_ENV
+          echo "DIY_P3_SH=$DIY_P3_SH" >> $GITHUB_ENV          
           echo "OWRT_FILES=$OWRT_FILES" >> $GITHUB_ENV
+          
+          echo "OWRT_brun_type=$OWRT_brun_type" >> $GITHUB_ENV
+          echo ${{ env.OWRT_brun_type }}
+          
+          if [[ "${{ env.OWRT_brun_type }}" == "meson6.6" ]]; then
+            OWRT_CFG="Config/quicker.config"
+            echo "OWRT_CFG=$OWRT_CFG" >> $GITHUB_ENV
+          elif [[ "${{ env.OWRT_brun_type }}" == "amlogic6.1" ]]; then
+            OWRT_CFG="Config/quicker-amlogic.config"
+            echo "OWRT_CFG=$OWRT_CFG" >> $GITHUB_ENV
+          elif [[ "${{ env.OWRT_brun_type }}" == "amlogic6.6" ]]; then
+            OWRT_CFG="Config/quicker-amlogic.config"
+            echo "OWRT_CFG=$OWRT_CFG" >> $GITHUB_ENV
+          else
+             echo "没有选择编译任何类型"
+             exit 1
+          fi
         
         
     - name: 克隆源仓库
@@ -124,9 +148,22 @@ jobs:
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
         
         cd openwrt
-        if [[ $REPO_URL == *"immortalwrt"* ]]; then
-          mv $GITHUB_WORKSPACE/lede/target/linux/amlogic target/linux/amlogic
+        
+        if [[ "${{ env.OWRT_brun_type }}" == "meson6.6" ]]; then
+          mv $GITHUB_WORKSPACE/lede6.6/target/linux/meson target/linux
+          chmod -Rf 755 target/linux/meson
+          ls -l target/linux/meson
+          echo "meson6.6"
+        elif [[ "${{ env.OWRT_brun_type }}" == "amlogic6.1" ]]; then
+          mv $GITHUB_WORKSPACE/lede/target/linux/amlogic target/linux
           chmod -Rf 755 target/linux/amlogic
+          ls -l target/linux/amlogic
+          echo "amlogic6.1"
+        elif [[ "${{ env.OWRT_brun_type }}" == "amlogic6.6" ]]; then
+          mv $GITHUB_WORKSPACE/lede6.6/target/linux/amlogic target/linux
+          chmod -Rf 755 target/linux/amlogic
+          ls -l target/linux/amlogic
+          echo "amlogic6.6"
         fi
         
         $GITHUB_WORKSPACE/$DIY_P1_SH
@@ -138,7 +175,7 @@ jobs:
       with:
         ccache: 'true'
         prefix: ${{ github.workspace }}/openwrt
-        mixkey: ${{ env.OWRT_URL }}/tree/${{ env.OWRT_BRANCH }}?device=${{ env.OWRT_CFG }} 
+        mixkey: ${{ env.OWRT_brun_type }}/tree/${{ env.OWRT_BRANCH }}?device=${{ env.OWRT_CFG }} 
         
     - name: 安装订阅源
       run: |
@@ -173,7 +210,7 @@ jobs:
           chmod -R 755 $GITHUB_WORKSPACE/$OWRT_FILES/mnt/sda1/share
           
           rm -rf ./tmp* ./.config*
-          [ -e $GITHUB_WORKSPACE/$OWRT_CFG ] && mv $GITHUB_WORKSPACE/$OWRT_CFG .config
+          [ -e $GITHUB_WORKSPACE/${{ env.OWRT_CFG }}  ] && mv $GITHUB_WORKSPACE/${{ env.OWRT_CFG }}  .config
           
           #如果files文件夹不存在，创建文件夹
           if [ ! -d "./files" ]; then
@@ -186,7 +223,7 @@ jobs:
             echo "rc.local文件不存在！"
           else
             cat files/etc/rc.local
-          fi
+          fi 
           
           #web控制台去掉443监听补丁
           if [[ "${{ inputs.OWRT_TYPE }}" == *"OneCloud-docker"* ]]; then
@@ -252,12 +289,13 @@ jobs:
         tag_name: OpenWrt_${{ env.OWRT_SOURCE }}_${{ env.OWRT_DATE }}
         files: ${{ env.FIRMWARE }}/*
         body: |
-          自用玩客云一站式直刷固件[amlogic6.1]！使用双USB公头线刷机！
-          =============基本信息============
-
-          源码：${{env.OWRT_SOURCE}}
-          密码：password
-          地址：${{env.OWRT_IP}}
+          自用玩客云一站式直刷固件[${{ env.OWRT_brun_type }}]！
+          请使用双USB公头线刷机！
+          ==========🧊 基本信息 🧊==========
+          💻 固件源码： ${{env.OWRT_SOURCE}}
+          💝 源码分支： ${{ env.OWRT_BRANCH }}
+          🔑 默认密码： password
+          🌐 默认地址： ${{env.OWRT_IP}}
 
     - name: 清理Releases
       uses: rmoyulong/delete-older-releases@master
