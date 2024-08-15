@@ -10,10 +10,6 @@ sed -i "s/hostname='.*'/hostname='$OWRT_NAME'/g" ./package/base-files/files/bin/
 sed -i "s/timezone='.*'/timezone='CST-8'/g" ./package/base-files/files/bin/config_generate
 sed -i "/timezone='.*'/a\\\t\t\set system.@system[-1].zonename='Asia/Shanghai'" ./package/base-files/files/bin/config_generate
 
-# dockerd、docker回滚25.0.5版本
-#sed -i 's/PKG_VERSION:=[0-9]\+\.[0-9]\+\.[0-9]\+/PKG_VERSION:=25.0.5/g' feeds/packages/utils/docker/Makefile
-#sed -i 's/PKG_VERSION:=[0-9]\+\.[0-9]\+\.[0-9]\+/PKG_VERSION:=25.0.5/g' feeds/packages/utils/dockerd/Makefile
-
 # Modify default NTP server
 echo 'Modify default NTP server...'
 sed -i 's/ntp.aliyun.com/ntp.ntsc.ac.cn/' package/base-files/files/bin/config_generate
