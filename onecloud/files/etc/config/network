@@ -7,21 +7,6 @@ config interface 'loopback'
 
 config globals 'globals'
 
-config interface 'lan'
-	option proto 'static'
-	option ipaddr '192.168.1.110'
-	option netmask '255.255.255.0'
-	option ip6assign '60'
-	option device 'br-lan'
-	option gateway '192.168.1.1'
-	list dns '192.168.1.1'
-
-config interface 'utun'
-	option proto 'none'
-	option ifname 'utun'
-	option device 'utun'
-	option auto '0'
-
 config interface 'docker'
 	option proto 'none'
 	option auto '0'
@@ -36,9 +21,21 @@ config device
 	option type 'bridge'
 	list ports 'eth0'
 
-config interface 'lan6'
+config interface 'Internet'
+	option proto 'none'
+	option device 'eth0'
+
+config interface 'wan'
+	option proto 'dhcp'
+	option device '@Internet'
+
+config interface 'wan6'
 	option proto 'dhcpv6'
+	option device '@wan'
 	option reqaddress 'try'
 	option reqprefix 'auto'
-	option device 'br-lan'
+
+config device
+	option name 'eth0'
+	option macaddr '8E:D9:A5:78:99:D1'
 

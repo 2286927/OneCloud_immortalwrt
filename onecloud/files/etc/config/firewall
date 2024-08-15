@@ -4,27 +4,21 @@ config defaults
 	option output 'ACCEPT'
 	option forward 'ACCEPT'
 	option flow_offloading '1'
-	option synflood_protect '1'
+	option flow_offloading_hw '1'
 	option fullcone '1'
 	option fullcone6 '1'
-	option flow_offloading_hw '1'
 
 config zone
 	option name 'lan'
 	option input 'ACCEPT'
 	option output 'ACCEPT'
 	option forward 'ACCEPT'
-	list network 'lan'
-	list network 'utun'
-	list network 'lan6'
 
 config zone
 	option name 'wan'
-	list network 'wan'
-	list network 'wan6'
-	option input 'REJECT'
+	option input 'ACCEPT'
 	option output 'ACCEPT'
-	option forward 'REJECT'
+	option forward 'ACCEPT'
 	option masq '1'
 	option mtu_fix '1'
 
@@ -201,9 +195,14 @@ config include 'bypass'
 	option path '/var/etc/bypass.include'
 	option reload '1'
 
-config include 'mia'
+config include 'passwall2'
 	option type 'script'
-	option path '/etc/mia.include'
+	option path '/var/etc/passwall2.include'
+	option reload '1'
+
+config include 'passwall2_server'
+	option type 'script'
+	option path '/var/etc/passwall2_server.include'
 	option reload '1'
 
 config include 'homeproxy_pre'
@@ -216,10 +215,6 @@ config include 'homeproxy_post'
 	option path '/var/run/homeproxy/fw4_post.nft'
 	option position 'table-post'
 
-config include 'openclash'
-	option type 'script'
-	option path '/var/etc/openclash.include'
-
 config include 'passwall'
 	option type 'script'
 	option path '/var/etc/passwall.include'
@@ -230,18 +225,17 @@ config include 'passwall_server'
 	option path '/var/etc/passwall_server.include'
 	option reload '1'
 
-config include 'passwall2'
-	option type 'script'
-	option path '/var/etc/passwall2.include'
-	option reload '1'
-
-config include 'passwall2_server'
-	option type 'script'
-	option path '/var/etc/passwall2_server.include'
-	option reload '1'
-
 config include 'shadowsocksr'
 	option type 'script'
 	option path '/var/etc/shadowsocksr.include'
+	option reload '1'
+
+config include 'openclash'
+	option type 'script'
+	option path '/var/etc/openclash.include'
+
+config include 'mia'
+	option type 'script'
+	option path '/etc/mia.include'
 	option reload '1'
 
