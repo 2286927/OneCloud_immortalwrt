@@ -291,7 +291,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         name: OneCloud ${{ env.PRODUCT_NAME }}${{ env.DATE }}
-        tag: ThunderOneCloud${{ env.TAG_DATE }}
+        tag: ThunderOneCloud${{ env.DATE }}
         artifacts: ${{ env.FIRMWARE }}/*
         allowUpdates: true
         removeArtifacts: true
