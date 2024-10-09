@@ -9,6 +9,7 @@ name: ByZhou-Cy-onecloud直刷包[amlogic6.6]
 # 开启写权限，防止无法上传到release
 
 on:
+  repository_dispatch:
   #对应的是 UTC 时间，需要转换，0 代表北京时间8点，每个月4日/17日12点编译一次
   #关闭则手动编译
   workflow_dispatch:
