@@ -21,7 +21,8 @@ rm -rf feeds/luci/applications/luci-app-passwall
 rm -rf feeds/luci/applications/luci-app-passwall2
 rm -rf feeds/luci/applications/luci-app-turboacc
 #rm -rf feeds/packages/net/shadowsocks-libev
-
+mkdir -p package/openwrt-packages
+mkdir -p package/small
 # Git稀疏克隆，只克隆指定目录到本地
 function git_sparse_clone() {
   branch="$1" repourl="$2" && shift 2
@@ -33,7 +34,7 @@ function git_sparse_clone() {
 }
 
 echo 'src-git kenzo https://github.com/kenzok8/openwrt-packages' >> feeds.conf.default
-#echo 'src-git small https://github.com/kenzok8/small' >> feeds.conf.default
+echo 'src-git small https://github.com/kenzok8/small' >> feeds.conf.default
 ######################################################################################
 #支持clash方式 有clash ui
 git clone --depth=1 https://github.com/bulianglin/homeproxy package/homeproxy
