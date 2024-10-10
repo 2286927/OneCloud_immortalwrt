@@ -2,8 +2,8 @@
 
 # 移除要替换的包
 rm -rf feeds/packages/net/alist
-rm -rf feeds/packages/net/aria2
-rm -rf feeds/packages/net/ariang
+#rm -rf feeds/packages/net/aria2
+#rm -rf feeds/packages/net/ariang
 rm -rf feeds/packages/net/mosdns
 rm -rf feeds/packages/net/msd_lite
 rm -rf feeds/packages/net/smartdns
