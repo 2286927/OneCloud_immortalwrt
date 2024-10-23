@@ -47,6 +47,7 @@ git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall2 package/luci-
 git_sparse_clone master https://github.com/vernesong/OpenClash luci-app-openclash
 #git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-bypass
 #######################################################################################
+git_sparse_clone master https://github.com/xiangfeidexiaohuo/extra-ipk op-xunlei
 #git_sparse_clone master https://github.com/kiddin9/openwrt-packages dnsforwarder
 git_sparse_clone master https://github.com/rmoyulong/AX6-Actions_Lede pcre
 git_sparse_clone master https://github.com/rmoyulong/AX6-Actions_Lede ruby
