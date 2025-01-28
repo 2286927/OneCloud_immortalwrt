@@ -22,7 +22,7 @@ rm -rf feeds/luci/applications/luci-app-passwall
 rm -rf feeds/luci/applications/luci-app-passwall2
 rm -rf feeds/luci/applications/luci-app-turboacc
 #rm -rf feeds/packages/net/shadowsocks-libev
-#mkdir -p package/openwrt-packages
+#mkdir -p package/kwrt-packages
 #mkdir -p package/small
 # Git稀疏克隆，只克隆指定目录到本地
 function git_sparse_clone() {
