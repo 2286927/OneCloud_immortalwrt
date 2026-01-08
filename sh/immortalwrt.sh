@@ -79,6 +79,10 @@ git_sparse_clone master https://github.com/rmoyulong/AX6-Actions_Lede pcre
 git_sparse_clone master https://github.com/rmoyulong/AX6-Actions_Lede ruby
 #git_sparse_clone master https://github.com/kiddin9/kwrt-packages luci-app-zerotier
 git_sparse_clone main https://github.com/kiddin9/kwrt-packages taskd
+git_sparse_clone main https://github.com/kiddin9/kwrt-packages luci-app-webdav
+git_sparse_clone main https://github.com/kiddin9/kwrt-packages webdav2
+git_sparse_clone main https://github.com/kiddin9/kwrt-packages luci-app-gowebdav
+git_sparse_clone main https://github.com/kiddin9/kwrt-packages gowebdav
 #git_sparse_clone master https://github.com/kiddin9/kwrt-packages v2dat
 #git_sparse_clone master https://github.com/kiddin9/openwrt-packages luci-app-mosdns
 #git_sparse_clone master https://github.com/kiddin9/kwrt-packages luci-app-ssr-plus
@@ -106,3 +110,4 @@ sudo chmod -Rf 755 package/luci-app-onliner
 # msd_lite
 git clone --depth=1 https://github.com/ximiTech/luci-app-msd_lite package/luci-app-msd_lite
 git clone --depth=1 https://github.com/ximiTech/msd_lite package/msd_lite
+
