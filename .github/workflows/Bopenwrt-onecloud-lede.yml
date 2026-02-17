@@ -10,7 +10,7 @@
 # See /LICENSE for more information.
 #
 
-name: openwrt-onecloud-lede
+name: Bopenwrt-onecloud-lede
 
 on:
   repository_dispatch:
