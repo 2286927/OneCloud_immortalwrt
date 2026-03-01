@@ -24,7 +24,7 @@ env:
   DIY_RollB: sh/RollbacktoDockerVersion.sh
   DIY_P1_SH: sh/diy-part1.sh
   DIY_P2_SH: sh/diy-part2.sh
-  GEN_BURN_IMG_SH: gen_burn_img.sh
+  GEN_BURN_IMG_SH: sh/gen_burn_img.sh
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   OWRT_IP: 172.16.8.1
