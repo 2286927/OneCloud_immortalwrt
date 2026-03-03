@@ -113,7 +113,7 @@ jobs:
           sudo chown $USER:$GROUPS /workdir
           echo "status=success" >> ${GITHUB_OUTPUT}
           df -Th
-
+          
     - name: 初始化变量
       run: |
           export OWRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d_%H.%M.%S")
@@ -140,7 +140,7 @@ jobs:
           # OWRT_CFG="Config/quicker-amlogic.config"
           OWRT_CFG="Config/onecloud.config"
           echo "OWRT_CFG=$OWRT_CFG" >> $GITHUB_ENV
-        
+          
     - name: 克隆源仓库
       working-directory: /workdir
       run: |
@@ -151,9 +151,9 @@ jobs:
     - name: 检查脚本
       run: |
         cd ./sh
-
+        
         dos2unix ./*.sh
-        chmod +x ./*.sh          
+        chmod +x ./*.sh
         
     - name: 设置订阅源
       run: |
@@ -170,7 +170,7 @@ jobs:
         $GITHUB_WORKSPACE/$DIY_P1_SH
         #echo 'src-git kiddin9 https://github.com/kiddin9/openwrt-packages' >> feeds.conf.default
         echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
- 
+        
     - name: 启动缓存[第二次起生效]
       uses: rmoyulong/cachewrtbuild@main
       with:
@@ -183,7 +183,7 @@ jobs:
         cd openwrt
         
         ./scripts/feeds update -a
-        ./scripts/feeds install -a       
+        ./scripts/feeds install -a
         
     - name:  加载自定义配置
       working-directory: ./openwrt
@@ -318,4 +318,5 @@ jobs:
         retain_days: 0
 
         keep_minimum_runs: 1
+
 
