@@ -25,6 +25,7 @@ env:
   REPO_BRANCH: openwrt-24.10
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: Config/onecloud.config
+  DIY_RollB: sh/RollbacktoDockerVersion.sh
   #DIY_P1_SH: sh/quick.sh
   DIY_P1_SH: sh/new_immortalwrt.sh
   DIY_P2_SH: sh/lean2.sh
@@ -171,7 +172,7 @@ jobs:
       run: |
         cd openwrt
         
-        ./scripts/feeds update -a
+        ./scripts/feeds update -a && $GITHUB_WORKSPACE/$DIY_RollB
         ./scripts/feeds install -a
         
     - name:  加载自定义配置
@@ -308,3 +309,4 @@ jobs:
         
         keep_minimum_runs: 1
         
+
