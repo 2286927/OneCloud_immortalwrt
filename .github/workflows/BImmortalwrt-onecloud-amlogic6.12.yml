@@ -216,7 +216,7 @@ jobs:
           fi
           
           #设置主路由
-#          $GITHUB_WORKSPACE/$DIY_P4_SH "${{ env.OWRT_IP }}" "${{ env.OWRT_SERVER_IP }}"
+          #$GITHUB_WORKSPACE/$DIY_P4_SH "${{ env.OWRT_IP }}" "${{ env.OWRT_SERVER_IP }}"
           # 修改为（不传递参数）：
           $GITHUB_WORKSPACE/$DIY_P4_SH
           
