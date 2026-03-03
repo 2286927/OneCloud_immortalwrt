@@ -1,5 +1,5 @@
 #========================================================================================================================
-# https://github.com/ophub/amlogic-s9xxx-openwrt#
+# https://github.com/ophub/amlogic-s9xxx-openwrt
 # Description: Use Releases file to packaging
 # Cron: min (0 - 59) / hour (0 - 23) / day of month (1 - 31) / month (1 - 12) / day of week (0 - 6)(Sunday - Saturday)
 #========================================================================================================================
@@ -253,7 +253,7 @@ jobs:
     - name: 制作直刷包
       run: |
         $GITHUB_WORKSPACE/sh/convert3.sh
-        
+
     - name: 整理固件
       id: organize
       run: |
