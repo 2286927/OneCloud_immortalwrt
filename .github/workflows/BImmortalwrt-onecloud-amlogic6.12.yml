@@ -18,17 +18,6 @@ on:
         options:
         - amlogic6.12
         
-#      OP_IP:
-#        description: '玩客云IP选项'     
-#        required: true
-#        default: '192.168.31.110'
-#        type: string        
-#
-#      SERVER_IP:
-#        description: '主路由IP选项'     
-#        required: true
-#        default: '192.168.31.1'
-#        type: string
         
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -53,11 +42,11 @@ env:
   OWRT_FILES: onecloud/files
   OWRT_brun_type: ${{ github.event.inputs.brun_type }}
   TZ: Asia/Shanghai
-
+  
 jobs:
   build_brun_firmware:
     runs-on: ubuntu-latest
-        
+    
     steps:
     - name: 清理服务器空间(Ubuntu)
       uses: rmoyulong/free-disk-space@main
@@ -65,7 +54,7 @@ jobs:
         # this might remove tools that are actually needed,
         # if set to "true" but frees about 6 GB
         tool-cache: true
-
+        
         # all of these default to true, but feel free to set to
         # "false" if necessary for your workflow
         android: true
@@ -77,7 +66,7 @@ jobs:
         
     - name: 检查项目
       uses: actions/checkout@main
- 
+      
     - name: 检查分配的服务器性能
       run: |
         echo "警告⚠"
@@ -91,7 +80,7 @@ jobs:
         echo -e "$(sudo lshw -short -C memory | grep GiB) \n"
         echo "--------------------------硬盘信息--------------------------"
         echo "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT 
-
+        
     - name: 初始化编译环境
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -244,7 +233,7 @@ jobs:
           
           #python3.patch.sh
           $GITHUB_WORKSPACE/$DIY_P5_SH
-        
+          
     - name: 下载编译环境
       working-directory: ./openwrt
       run: |      
@@ -252,7 +241,7 @@ jobs:
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-
+        
     - name: 编译固件
       working-directory: ./openwrt
       run: |
@@ -264,7 +253,7 @@ jobs:
     - name: 制作直刷包
       run: |
         $GITHUB_WORKSPACE/sh/convert3.sh
-          
+        
     - name: 整理固件
       id: organize
       run: |
@@ -289,7 +278,7 @@ jobs:
         export OWRT_SOURCE=$(echo $REPO_URL | cut -d '/' -f 5-)
         echo "OWRT_SOURCE=$OWRT_SOURCE" >> $GITHUB_ENV
         echo "OWRT_DATE=$OWRT_DATE" >> $GITHUB_ENV
-
+        
     - name: 上传直刷固件
       uses: ncipollo/release-action@v1
       with:
@@ -316,7 +305,6 @@ jobs:
       uses: rmoyulong/delete-workflow-runs@main
       with:
         retain_days: 0
-
+        
         keep_minimum_runs: 1
-
-
+        
