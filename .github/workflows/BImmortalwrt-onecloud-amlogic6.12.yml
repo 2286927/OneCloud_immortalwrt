@@ -190,7 +190,7 @@ jobs:
       run: |          
           curl -L -o package/base-files/files/etc/banner https://raw.githubusercontent.com/rmoyulong/AX6-Actions_Lede/master/ax6/cats_banner
           $GITHUB_WORKSPACE/$DIY_P2_SH
-         
+          
           #删除冲突的插件 
           #rm -rf feeds/kenzok8/{base-files,dnsmasq,firewall*,fullconenat,libnftnl,nftables,ppp,opkg,ucl,upx,vsftpd-alt,miniupnpd-iptables,wireless-regdb}
           $GITHUB_WORKSPACE/$DIY_P3_SH
@@ -318,3 +318,4 @@ jobs:
         retain_days: 0
 
         keep_minimum_runs: 1
+
