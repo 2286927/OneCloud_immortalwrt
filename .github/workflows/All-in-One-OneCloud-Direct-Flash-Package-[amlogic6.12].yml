@@ -163,7 +163,7 @@ jobs:
     - name:  加载自定义配置
       working-directory: ./openwrt
       run: |
-          curl -L -o package/base-files/files/etc/banner $GITHUB_WORKSPACE/ax6/banner
+          curl -L -o package/base-files/files/etc/banner https://raw.githubusercontent.com/2286927/OneCloud_immortalwrt/refs/heads/master/ax6/banner
           $GITHUB_WORKSPACE/$DIY_P2_SH
          
           #删除冲突的插件 
@@ -291,4 +291,5 @@ jobs:
       uses: rmoyulong/delete-workflow-runs@main
       with:
         retain_days: 0
+
         keep_minimum_runs: 1
