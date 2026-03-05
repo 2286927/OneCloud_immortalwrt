@@ -26,7 +26,7 @@ env:
   UPLOAD_COWTRANSFER: false
   UPLOAD_WETRANSFER: false
   UPLOAD_RELEASE: true
-  OWRT_IP: 192.168.31.110
+  OWRT_IP: 172.16.8.1
   OWRT_NAME: OneCloud
   OWRT_FILES: onecloud/files
   TZ: Asia/Shanghai
@@ -293,3 +293,4 @@ jobs:
         retain_days: 0
 
         keep_minimum_runs: 1
+
