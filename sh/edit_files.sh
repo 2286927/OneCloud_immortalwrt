@@ -20,27 +20,48 @@ config interface 'loopback'
 	option device 'lo'
 
 config globals 'globals'
+	option packet_steering '1'
 
 config interface 'wan'
 	option proto 'dhcp'
-	option device 'eth0'
+	option device '@Internet'
 	option peerdns '0'
-	list dns '114.114.114.114'
-	list dns '8.8.8.8'
-
-# 可选：创建一个桥接的LAN口，但关闭其DHCP服务器功能，仅用于设备管理
-# 如果不需要管理接口，可删除此段
-config interface 'lan'
-	option proto 'static'
-	option ipaddr '172.16.8.1'
-	option netmask '255.255.255.0'
-	option device 'br-lan'
-	option type 'bridge'
-	list ports 'eth1'  # 如果有第二个网口
-	option ip4table 'wan'  # 关键：将LAN的流量路由到WAN表
+	list dns '202.103.224.68'
+	list dns '202.103.225.68'
 
 config device
 	option name 'br-lan'
 	option type 'bridge'
-	list ports 'eth1'  # 如果有第二个网口
+	list ports 'eth1'
+
+config device
+	option name 'br-lan'
+	option type 'bridge'
+
+config interface 'Internet'
+	option proto 'none'
+	option device 'eth0'
+
+config interface 'wan6'
+	option proto 'dhcpv6'
+	option device '@wan'
+	option reqaddress 'try'
+	option reqprefix 'auto'
+	option norelease '1'
+	option peerdns '0'
+	list dns '240e:9:0:100:202:103:224:68'
+	list dns '240e:9:2000:100:202:103:225:68'
+
+config interface 'Bypass'
+	option proto 'static'
+	option device '@Internet'
+	option ipaddr '192.168.1.2'
+	option netmask '255.255.255.0'
+	list ip6addr 'fe80::2'
+	option ip6gw 'fe80::1'
+
+config device
+	option name 'eth0'
+	option macaddr '36:98:69:DC:D0:BE'
 EOF
+
