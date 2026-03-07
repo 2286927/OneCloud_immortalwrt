@@ -14,7 +14,9 @@ merge_package master https://github.com/kenzok8/small/ package shadowsocks-rust
 rm -rf package/helloworld/xray-core
 git_sparse_clone main https://github.com/Openwrt-Passwall/openwrt-passwall-packages xray-core
 git_sparse_clone main https://github.com/Openwrt-Passwall/openwrt-passwall-packages geoview
+git_sparse_clone master https://github.com/kenzok8/openwrt-packages luci-app-adguardhome
 
 cd package
 $GITHUB_WORKSPACE/sh/Packages.sh
 $GITHUB_WORKSPACE/sh/Handles.sh
+
