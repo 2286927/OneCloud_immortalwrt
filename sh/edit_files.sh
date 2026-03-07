@@ -32,11 +32,6 @@ config interface 'wan'
 config device
 	option name 'br-lan'
 	option type 'bridge'
-	list ports 'eth1'
-
-config device
-	option name 'br-lan'
-	option type 'bridge'
 
 config interface 'Internet'
 	option proto 'none'
@@ -64,4 +59,5 @@ config device
 	option name 'eth0'
 	option macaddr '36:98:69:DC:D0:BE'
 EOF
+
 
