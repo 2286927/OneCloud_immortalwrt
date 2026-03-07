@@ -78,6 +78,7 @@ UPDATE_PACKAGE "onliner" "rmoyulong/luci-app-onliner" "main"
 UPDATE_PACKAGE "istore-ui" "linkease/istore-ui" "main"
 UPDATE_PACKAGE "istore-luci" "linkease/istore" "main"
 UPDATE_PACKAGE "amlogic" "ophub/luci-app-amlogic.git" "main"
+UPDATE_PACKAGE "luci-app-adguardhome" "kenzok8/luci-app-adguardhome" "master"
 
 #更新软件包版本
 UPDATE_VERSION() {
