@@ -24,7 +24,7 @@ sed -i 's/cn.pool.ntp.org/pool.ntp.org/' package/base-files/files/bin/config_gen
 [ ! -e package/lean/default-settings/files/zzz-default-settings ] && echo "DISTRIB_DESCRIPTION='莫小小($(TZ=UTC-8 date +%Y.%m.%d))@lean '" >> package/base-files/files/etc/openwrt_release
 
 # 设置密码为password
-# sed -i 's/root:::0:99999:7:::/root:$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0:0:99999:7:::/' package/base-files/files/etc/shadow
+# sed -i 's/root:::0:99999:7:::/root:$5$FDEStvmdC670zpAI$tnjxh5wg/AyVcP9tf3rILgzL/v09Lsjy6hlSygTZFH7:20520:0:99999:7:::/' package/base-files/files/etc/shadow
 
 #连接数
 sed -i '/customized in this file/a fs.file-max=102400\nnet.ipv4.neigh.default.gc_thresh1=512\nnet.ipv4.neigh.default.gc_thresh2=2048\nnet.ipv4.neigh.default.gc_thresh3=4096\nnet.netfilter.nf_conntrack_max=65535' package/base-files/files/etc/sysctl.conf
@@ -56,3 +56,4 @@ echo " ------------------------------------------------------------- " >> packag
 echo " ------------------------------------------------------------- " >> package/base-files/files/etc/banner
 
 echo "                                                               " >> package/base-files/files/etc/banner
+
