@@ -57,7 +57,8 @@ config interface 'Bypass'
 
 config device
 	option name 'eth0'
-	option macaddr '36:98:69:DC:D0:BE'
+	option macaddr 'C0:E7:11:25:20:32'
 EOF
+
 
 
