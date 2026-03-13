@@ -3,7 +3,7 @@
 # Description: Use Releases file to packaging
 # Cron: min (0 - 59) / hour (0 - 23) / day of month (1 - 31) / month (1 - 12) / day of week (0 - 6)(Sunday - Saturday)
 #========================================================================================================================
-name: All-in-One-OneCloud-Direct-Flash-Package-[amlogic6.12]
+name: OneCloud2410-Direct-Flash-Package-[amlogic6.12]
 
 on:
   repository_dispatch:
@@ -18,7 +18,7 @@ env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: openwrt-24.10
   FEEDS_CONF: feeds.conf.default
-  #DIY_RollB: sh/RollbacktoDockerVersion.sh
+  DIY_RollB: sh/RollbacktoDockerVersion.sh
   #DIY_P1_SH: sh/quick.sh
   DIY_P1_SH: sh/setup.sh
   DIY_P2_SH: sh/lean2.sh
@@ -161,7 +161,7 @@ jobs:
     - name: 安装订阅源
       run: |
         cd openwrt
-        ./scripts/feeds update -a
+        ./scripts/feeds update -a && $GITHUB_WORKSPACE/$DIY_RollB
         ./scripts/feeds install -a       
         
     - name:  加载自定义配置
@@ -297,6 +297,7 @@ jobs:
         retain_days: 0
 
         keep_minimum_runs: 1
+
 
 
 
